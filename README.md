@@ -28,7 +28,7 @@ In the future, we plan to include:
 
 ## License
 
-Copyright © 2025 [Your Name]
+Copyright © 2025 Shubham Dwivedi
 
 All rights reserved.
 

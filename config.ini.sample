@@ -1,0 +1,19 @@
+[database]
+ENGINE = django.db.backends.postgresql
+NAME = your_database_name
+USER = your_database_user
+PASSWORD = your_secure_password
+HOST = localhost
+PORT = 5432
+
+[security]
+SECRET_KEY = your_django_secret_key
+DEBUG = False
+ALLOWED_HOSTS = 127.0.0.1, localhost
+
+[email]
+EMAIL_HOST = smtp.yourmail.com
+EMAIL_PORT = 587
+EMAIL_HOST_USER = your_email@example.com
+EMAIL_HOST_PASSWORD = your_email_password
+EMAIL_USE_TLS = True

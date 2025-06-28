@@ -6,10 +6,9 @@ from .models import TarFileRecord, AllSkyImage
 from .views import admin_process_tar_file
 from .management.commands.scan_tar_files import Command as ScanCommand
 
-
 @admin.register(TarFileRecord)
 class TarFileRecordAdmin(admin.ModelAdmin):
-    list_display = ('file_name', 'processed', 'last_processed', 'process_button')
+    list_display = ('file_name', 'processed', 'last_processed', 'process_button','processing_controls','status_label')
     list_filter = ('processed',)
 
     def get_urls(self):
@@ -29,15 +28,42 @@ class TarFileRecordAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context['scan_tar_url'] = reverse('admin:scan_tar_files')
         return super().changelist_view(request, extra_context=extra_context)
-
+    
     def process_button(self, obj):
-        url = reverse('admin:process_tar_admin', args=[obj.id])
-        label = "Reprocess" if obj.processed else "Process"
-        return format_html('<a class="button" href="{}">{}</a>', url, label)
-    process_button.short_description = "Action"
+        if obj.processed:
+            label = "Reprocess"
+        else:
+            label = "Process"
+
+        return format_html(
+            '<button type="button" class="button ajax-process-btn" data-tar-id="{}">{}</button>',
+            obj.id,
+            label
+        )
+    def processing_controls(self, obj):
+        return format_html('''
+            <div id="status-{id}">Status: ⏸ Not running</div>
+            <button onclick="startIngestion({id})">▶ Start</button>
+            <button onclick="stopIngestion({id})">🛑 Stop</button>
+        ''', id=obj.id)
+    processing_controls.short_description = "Ingest Controls"
+
+    @admin.display(description="Status")
+    def status_label(self, obj):
+        if obj.is_processing:
+            return "🟡 Processing"
+        elif obj.processed:
+            return "✅ Done"
+        else:
+            return "⏸ Not Started"
 
 @admin.register(AllSkyImage)
 class AllSkyImageAdmin(admin.ModelAdmin):
-    list_display = ('file', 'final_timestamp', 'timestamp_mismatch')
+    list_display = ('file', 'formatted_final_timestamp', 'timestamp_mismatch')
     list_filter = ('timestamp_mismatch', 'final_timestamp')
     search_fields = ('file',)
+
+    def formatted_final_timestamp(self, obj):
+        return obj.final_timestamp.strftime("%Y-%m-%d %H:%M:%S") if obj.final_timestamp else "-"
+    formatted_final_timestamp.short_description = "Final Timestamp"
+    formatted_final_timestamp.admin_order_field = 'final_timestamp'

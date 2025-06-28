@@ -1,4 +1,11 @@
 {% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="{% static 'js/admin_ingest.js' %}"></script>
+{% endblock %}
+
 {% block object-tools-items %}
     <li>
         <a class="button" href="{{ scan_tar_url }}">🔄 Scan for new tar files</a>

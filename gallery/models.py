@@ -21,5 +21,9 @@ class TarFileRecord(models.Model):
     processed = models.BooleanField(default=False)
     last_processed = models.DateTimeField(null=True, blank=True)
 
+    is_processing = models.BooleanField(default=False)
+    last_message = models.TextField(blank=True, null=True)
+    should_stop = models.BooleanField(default=False)
+
     def __str__(self):
         return self.file_name
