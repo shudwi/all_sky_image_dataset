@@ -1,6 +1,6 @@
 # All-Sky Image Dataset Gallery
 
-This project showcases an **All-Sky Image Dataset**, a collection of images capturing the entire visible portion of the sky using fisheye or wide-angle lens systems.
+This project showcases an **All-Sky Image Dataset**, a collection of images that capture the entire visible portion of the sky, typically from a fixed ground-based location. These datasets are valuable for various research areas, including solar energy prediction, cloud cover analysis, and atmospheric studies. 
 
 These images are valuable for applications such as:
 - **Solar energy forecasting**

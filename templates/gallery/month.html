@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Available Days for {{ month }}/{{ year }}</h3>
+<ul class="list-group">
+  {% for d in days %}
+    <li class="list-group-item">
+      <a href="{% url 'day_gallery' year month d.day %}">{{ d|date:"d M, Y" }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

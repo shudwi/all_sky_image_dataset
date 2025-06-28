@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Images for {{ date }}</h3>
+
+{% if first_image %}
+  <div class="text-center mb-4">
+    <img src="{{ first_image.file.url }}" class="img-fluid border shadow">
+  </div>
+{% endif %}
+
+<h5>Previews</h5>
+<div class="row">
+  {% for img in page_obj %}
+    <div class="col-6 col-md-3 col-lg-2 mb-4 text-center">
+      <a href="{{ img.file.url }}" target="_blank">
+        <img src="{% url 'preview_image' img.id %}" class="img-fluid rounded border" />
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav aria-label="Pagination">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

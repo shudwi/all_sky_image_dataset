@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Available Months for {{ year }}</h3>
+<ul class="list-group">
+  {% for m in months %}
+    <li class="list-group-item">
+      <a href="{% url 'month_view' year m.month %}">{{ m|date:"F" }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

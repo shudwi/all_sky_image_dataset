@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome to All Sky Image Gallery</h2>
+<p>This gallery contains sky images captured at Maitri station for atmospheric research.</p>
+
+<h4>Available Years:</h4>
+<ul class="list-group">
+  {% for y in years %}
+    <li class="list-group-item">
+      <a href="{% url 'year_view' y.year %}">{{ y.year }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
