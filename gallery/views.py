@@ -23,12 +23,34 @@ def home(request):
     return render(request, 'gallery/home.html', {'years': years})
 
 def year_view(request, year):
-    months = AllSkyImage.objects.filter(final_timestamp__year=year).dates('final_timestamp', 'month')
-    month_names = list(calendar.month_name)[1:]  # Skips empty string at index 0
+    # Get all available days in the year
+    all_days = AllSkyImage.objects.filter(
+        final_timestamp__year=year
+    ).dates('final_timestamp', 'day')
+    days_with_data = set(all_days)
+
+    cal = calendar.Calendar(firstweekday=6)
+    months = []
+    for m in range(1, 13):
+        month_data = {
+            'name': calendar.month_name[m],
+            'number': m,
+            'weeks': []
+        }
+        for week in cal.monthdatescalendar(year, m):
+            week_data = []
+            for day in week:
+                if day.month != m:
+                    week_data.append({'day': '', 'status': 'empty'})
+                else:
+                    status = 'available' if day in days_with_data else 'unavailable'
+                    week_data.append({'day': day.day, 'date': day, 'status': status})
+            month_data['weeks'].append(week_data)
+        months.append(month_data)
+
     return render(request, 'gallery/year.html', {
         'year': year,
         'months': months,
-        'month_names': month_names,
     })
 
 def month_view(request, year, month):

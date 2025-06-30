@@ -1,25 +1,45 @@
 {% extends "base.html" %}
-{% load calendar_tags %}
-
+{% load static %}
 {% block content %}
 <div class="container">
-  <h2 class="mb-4">Available Months in {{ year }}</h2>
+  <h2 class="mb-4 text-center">All Sky Image Calendar - {{ year }}</h2>
+
   <div class="row">
-    {% for m in 1|to_list:12 %}
-      <div class="col-md-3 mb-4">
-        <div class="card shadow-sm text-center">
-          <div class="card-body">
-            {% with month_name=month_names|index:m|default:"" %}
-              {% if months|pluck:"month"|contains:m %}
-                <a href="{% url 'month_view' year m %}" class="btn btn-success btn-lg w-100">
-                  {{ month_name }}
-                </a>
-              {% else %}
-                <button class="btn btn-danger btn-lg w-100" disabled>
-                  {{ month_name }}
-                </button>
-              {% endif %}
-            {% endwith %}
+    {% for month in months %}
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header text-center bg-light">
+            <strong>{{ month.name }}</strong>
+          </div>
+          <div class="card-body p-2">
+            <table class="table table-bordered text-center table-sm calendar-table mb-0">
+              <thead>
+                <tr>
+                  <th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for week in month.weeks %}
+                  <tr>
+                    {% for day in week %}
+                      {% if day.status == 'empty' %}
+                        <td class="p-1"></td>
+                      {% elif day.status == 'available' %}
+                        <td class="p-1">
+                          <a href="{% url 'day_gallery' year month.number day.day %}" class="btn btn-success btn-sm">
+                            {{ day.day }}
+                          </a>
+                        </td>
+                      {% elif day.status == 'unavailable' %}
+                        <td class="p-1">
+                          <button class="btn btn-danger btn-sm" disabled>{{ day.day }}</button>
+                        </td>
+                      {% endif %}
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
