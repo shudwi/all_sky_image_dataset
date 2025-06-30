@@ -1,14 +1,49 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<h2>Welcome to All Sky Image Gallery</h2>
-<p>This gallery contains sky images captured at Maitri station for atmospheric research.</p>
 
-<h4>Available Years:</h4>
-<ul class="list-group">
-  {% for y in years %}
-    <li class="list-group-item">
-      <a href="{% url 'year_view' y.year %}">{{ y.year }}</a>
-    </li>
-  {% endfor %}
-</ul>
+<div class="container">
+  <h2 class="mb-4">Welcome to All Sky Image Gallery</h2>
+
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <p>
+        This gallery presents sky images captured continuously at the <strong>Maitri station</strong> in Antarctica, 
+        operated by the <strong>National Centre for Polar and Ocean Research (NCPOR)</strong>. These images are part of 
+        ongoing atmospheric research efforts aimed at understanding upper atmospheric phenomena in polar environments.
+      </p>
+
+      <h4 class="mt-4">🎯 Project Objectives</h4>
+      <ul>
+        <li>Monitoring auroral and airglow activities in the polar atmosphere</li>
+        <li>Studying mesospheric and thermospheric dynamics</li>
+        <li>Supporting atmospheric modelling and space weather studies</li>
+      </ul>
+
+      <h4 class="mt-4">📷 Instrument Details</h4>
+      <ul>
+        <li><strong>Type:</strong> All Sky Camera (ASIM – All Sky Imaging System)</li>
+        <li><strong>Field of View:</strong> 180° (fisheye lens)</li>
+        <li><strong>Resolution:</strong> Up to 4K (varies by deployment)</li>
+        <li><strong>Image Interval:</strong> Every 1–5 minutes (configurable)</li>
+        <li><strong>Deployed at:</strong> Maitri Station, Antarctica</li>
+      </ul>
+    </div>
+
+    <div class="col-md-4">
+      <img src="{% static 'img/all_sky_camera.jpg' %}" class="img-fluid rounded shadow" alt="All Sky Camera at Maitri Station">
+      <small class="d-block mt-2 text-muted text-center">All Sky Camera setup at Maitri Station</small>
+    </div>
+  </div>
+
+  <h4 class="mb-3">🗓 Available Years</h4>
+  <div class="row">
+    {% for y in years %}
+      <div class="col-6 col-md-3 mb-2">
+        <a href="{% url 'year_view' y.year %}" class="btn btn-outline-primary w-100">{{ y.year }}</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
 {% endblock %}

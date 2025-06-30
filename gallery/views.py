@@ -12,7 +12,9 @@ from datetime import date
 import os
 import threading
 from django.http import JsonResponse
-import time
+import calendar
+from django.db.models.functions import TruncDay
+from django.db.models import Count
 
 DUMMY_DATE = datetime(1900, 1, 1, 0, 0, 0)
 
@@ -21,14 +23,46 @@ def home(request):
     return render(request, 'gallery/home.html', {'years': years})
 
 def year_view(request, year):
-    months = AllSkyImage.objects.filter(final_timestamp__year=year) \
-        .dates('final_timestamp', 'month')
-    return render(request, 'gallery/year.html', {'year': year, 'months': months})
+    months = AllSkyImage.objects.filter(final_timestamp__year=year).dates('final_timestamp', 'month')
+    month_names = list(calendar.month_name)[1:]  # Skips empty string at index 0
+    return render(request, 'gallery/year.html', {
+        'year': year,
+        'months': months,
+        'month_names': month_names,
+    })
 
 def month_view(request, year, month):
-    days = AllSkyImage.objects.filter(final_timestamp__year=year, final_timestamp__month=month) \
-        .dates('final_timestamp', 'day')
-    return render(request, 'gallery/month.html', {'year': year, 'month': month, 'days': days})
+
+    # Get all days with data
+    all_days = AllSkyImage.objects.filter(
+        final_timestamp__year=year
+    ).dates('final_timestamp', 'day')
+    days_with_data = set(all_days)
+
+    # Build calendar for all 12 months
+    cal = calendar.Calendar(firstweekday=6)
+    months = []
+    for m in range(1, 13):
+        month_data = {
+            'name': calendar.month_name[m],
+            'number': m,
+            'weeks': []
+        }
+        for week in cal.monthdatescalendar(year, m):
+            week_data = []
+            for day in week:
+                if day.month != m:
+                    week_data.append({'day': '', 'status': 'empty'})
+                else:
+                    status = 'available' if day in days_with_data else 'unavailable'
+                    week_data.append({'day': day.day, 'date': day, 'status': status})
+            month_data['weeks'].append(week_data)
+        months.append(month_data)
+
+    return render(request, 'gallery/month.html', {
+        'year': year,
+        'months': months,
+    })
 
 def day_gallery(request, year, month, day):
 
@@ -39,7 +73,7 @@ def day_gallery(request, year, month, day):
     filename_timestamp__lt=end_dt).order_by('final_timestamp')
     first_image = images.first()
 
-    paginator = Paginator(images, 30)
+    paginator = Paginator(images, 50)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 

@@ -1,11 +1,29 @@
 {% extends "base.html" %}
+{% load calendar_tags %}
+
 {% block content %}
-<h3>Available Months for {{ year }}</h3>
-<ul class="list-group">
-  {% for m in months %}
-    <li class="list-group-item">
-      <a href="{% url 'month_view' year m.month %}">{{ m|date:"F" }}</a>
-    </li>
-  {% endfor %}
-</ul>
+<div class="container">
+  <h2 class="mb-4">Available Months in {{ year }}</h2>
+  <div class="row">
+    {% for m in 1|to_list:12 %}
+      <div class="col-md-3 mb-4">
+        <div class="card shadow-sm text-center">
+          <div class="card-body">
+            {% with month_name=month_names|index:m|default:"" %}
+              {% if months|pluck:"month"|contains:m %}
+                <a href="{% url 'month_view' year m %}" class="btn btn-success btn-lg w-100">
+                  {{ month_name }}
+                </a>
+              {% else %}
+                <button class="btn btn-danger btn-lg w-100" disabled>
+                  {{ month_name }}
+                </button>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

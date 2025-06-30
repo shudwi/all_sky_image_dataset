@@ -1,11 +1,48 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<h3>Available Days for {{ month }}/{{ year }}</h3>
-<ul class="list-group">
-  {% for d in days %}
-    <li class="list-group-item">
-      <a href="{% url 'day_gallery' year month d.day %}">{{ d|date:"d M, Y" }}</a>
-    </li>
-  {% endfor %}
-</ul>
+<div class="container">
+  <h2 class="mb-4">Available Images in {{ year }}</h2>
+  <div class="row">
+    {% for month in months %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header text-center">
+          <strong>{{ month.name }}</strong>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered text-center table-sm calendar-table">
+            <thead>
+              <tr>
+                <th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for week in month.weeks %}
+              <tr>
+                {% for day in week %}
+                  {% if day.status == 'empty' %}
+                    <td class="p-1"></td>
+                  {% elif day.status == 'available' %}
+                    <td class="p-1">
+                      <a href="{% url 'day_gallery' year month.number day.day %}" class="btn btn-success btn-sm">
+                        {{ day.day }}
+                      </a>
+                    </td>
+                  {% elif day.status == 'unavailable' %}
+                    <td class="p-1">
+                      <button class="btn btn-danger btn-sm" disabled>{{ day.day }}</button>
+                    </td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

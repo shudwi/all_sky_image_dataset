@@ -1,35 +1,133 @@
 {% extends 'base.html' %}
+{% load tz %}
 {% block content %}
-<h3>Images for {{ date }}</h3>
+<div class="container mt-4">
+  <h3 class="mb-4">{{ date }}</h3>
 
-{% if first_image %}
-  <div class="text-center mb-4">
-    <img src="{{ first_image.file.url }}" class="img-fluid border shadow">
-  </div>
-{% endif %}
-
-<h5>Previews</h5>
-<div class="row">
-  {% for img in page_obj %}
-    <div class="col-6 col-md-3 col-lg-2 mb-4 text-center">
-      <a href="{{ img.file.url }}" target="_blank">
-        <img src="{% url 'preview_image' img.id %}" class="img-fluid rounded border" />
-      </a>
+  {% if not page_obj %}
+  <p>No images available for this day.</p>
+  {% else %}
+  <div class="timeline-wrapper d-flex flex-wrap gap-3 justify-content-start">
+    {% for img in page_obj %}
+    <div class="timeline-item text-center">
+      <img src="{% url 'preview_image' img.id %}" class="img-thumbnail shadow-sm timeline-thumb"
+        style="width: 120px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#imageModal"
+        data-full-url="{{ img.file.url }}" data-caption="{{ img.final_timestamp|localtime|date:'H:i:s' }}"
+        data-index="{{ forloop.counter0 }}" data-bs-title="Captured at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
+        data-bs-toggle="tooltip">
+      <div class="small text-muted mt-1">{{ img.final_timestamp|localtime|date:"H:i" }}</div>
     </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if page_obj.has_other_pages %}
+  <nav aria-label="Pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+      </li>
+      {% endif %}
+
+      {% for i in page_obj.paginator.page_range %}
+      {% if page_obj.number == i %}
+      <li class="page-item active">
+        <span class="page-link">{{ i }}</span>
+      </li>
+      {% else %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+      </li>
+      {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next</span>
+      </li>
+      {% endif %}
+
+    </ul>
+  </nav>
+  {% endif %}
 </div>
 
-{% if page_obj.has_other_pages %}
-<nav aria-label="Pagination">
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-    {% endif %}
-    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }}</span></li>
-    {% if page_obj.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+<!-- Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" class="img-fluid border" alt="Full-size image">
+        <div id="modalCaption" class="mt-2 text-muted small"></div>
+        <div class="d-flex justify-content-between mt-3">
+          <button class="btn btn-outline-secondary" id="prevImage">⏮ Previous</button>
+          <button class="btn btn-outline-secondary" id="nextImage">Next ⏭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let thumbnails = [];
+  let currentIndex = 0;
+
+  function updateModal(index) {
+    const img = thumbnails[index];
+    if (!img) return;
+
+    document.getElementById('modalImage').src = img.dataset.fullUrl;
+    document.getElementById('modalCaption').textContent = "Captured at " + img.dataset.caption;
+    currentIndex = index;
+  }
+
+  const modal = document.getElementById('imageModal');
+  modal.addEventListener('show.bs.modal', function (event) {
+    thumbnails = Array.from(document.querySelectorAll('.timeline-thumb'));
+    const trigger = event.relatedTarget;
+    currentIndex = parseInt(trigger.dataset.index);
+    updateModal(currentIndex);
+  });
+
+  document.getElementById('prevImage').addEventListener('click', () => {
+    if (currentIndex > 0) updateModal(currentIndex - 1);
+  });
+
+  document.getElementById('nextImage').addEventListener('click', () => {
+    if (currentIndex < thumbnails.length - 1) updateModal(currentIndex + 1);
+  });
+
+  // Enable tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+</script>
+
+<style>
+  .timeline-wrapper {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .timeline-item {
+    flex: 0 0 auto;
+  }
+  .page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+</style>
 {% endblock %}
