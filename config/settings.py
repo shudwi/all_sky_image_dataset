@@ -120,13 +120,19 @@ USE_TZ = False #True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+if DEBUG:
+    FORCE_SCRIPT_NAME = ''
+else:
+    FORCE_SCRIPT_NAME = '/asi'
+STATIC_URL = FORCE_SCRIPT_NAME + '/static/'
 
-STATIC_URL = 'static/'
+#STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-MEDIA_URL = '/media/'
+MEDIA_URL = FORCE_SCRIPT_NAME + '/media/'
+#MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type

@@ -12,8 +12,9 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-light">
+  <img class="img-fluid" src="{% static 'img/portal_banner1.jpg'%}" alt="ncpor" width="100%">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="/">🌌 All Sky Gallery</a>
+    <a class="navbar-brand" href="{% url 'home' %}">🌌 All Sky Gallery</a>
   </nav>
 
   <main class="container py-4">
