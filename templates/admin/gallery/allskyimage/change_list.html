@@ -1,0 +1,19 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<!-- Optional JS if needed -->
+{% endblock %}
+
+{% block object-tools-items %}
+<li>
+  <a class="button" href="{% url 'admin:bulk_upload_allskyimage' %}">
+    📦 Bulk Upload
+  </a>
+</li>
+<li>
+  <a class="button" href="{% url 'admin:ingest_directory' %}">📁 Ingest Directory</a>
+</li>
+{{ block.super }}
+{% endblock %}

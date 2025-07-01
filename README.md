@@ -14,6 +14,10 @@ In the future, we plan to include:
 - Solar irradiance estimation
 - Weather classification insights using computer vision and machine learning
 
+## Pre-requisite
+- sudo apt update && sudo apt install ffmpeg
+- sudo apt install tesseract-ocr
+
 ## Features
 - Publicly viewable gallery of sky images
 - Simple, clean interface for browsing

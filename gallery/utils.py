@@ -9,8 +9,9 @@ from datetime import datetime
 from .models import AllSkyImage
 import shutil
 from pathlib import Path
+import cv2
 
-DUMMY_DATE = datetime(1970, 1, 1)
+DUMMY_DATE = datetime(1900, 1, 1)
 
 def extract_timestamp_from_watermark(image_path):
     try:
@@ -29,6 +30,19 @@ def generate_thumbnail_bytes(image_path, size=(128, 128)):
         byte_io = io.BytesIO()
         img.save(byte_io, format='JPEG', quality=40)
         return byte_io.getvalue()
+    
+def generate_video_thumbnail_bytes(video_path, size=(128, 128)):
+    cap = cv2.VideoCapture(video_path)
+    success, frame = cap.read()
+    cap.release()
+    if success:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(frame)
+        img.thumbnail(size)
+        byte_io = io.BytesIO()
+        img.save(byte_io, format='JPEG', quality=40)
+        return byte_io.getvalue()
+    return None
 
 def process_tar_file(full_tar_path, tar_record, media_root):
     with tempfile.TemporaryDirectory() as temp_extract_path:
@@ -72,14 +86,27 @@ def process_tar_file(full_tar_path, tar_record, media_root):
                 )
 
 
-def parse_filename_timestamp(filename):
+# def parse_filename_timestamp(filename):
+#     try:
+#         parts = filename.split("_")
+#         date_part = parts[2]       # e.g., 20-03-01
+#         time_part = parts[3].replace("-", ":").split(".")[0]
+#         return datetime.strptime(f"{date_part} {time_part}", "%y-%m-%d %H:%M:%S")
+#     except (IndexError, ValueError)as e:
+#         print(e)
+#         return None
+
+def parse_filename_timestamp(filepath):
     try:
-        parts = filename.split("_")
-        date_part = parts[2]       # e.g., 20-03-01
-        time_part = parts[3].replace("-", ":").split(".")[0]
-        return datetime.strptime(f"{date_part} {time_part}", "%y-%m-%d %H:%M:%S")
-    except (IndexError, ValueError):
-        return None
+        # Only get the filename, not full path
+        filename = os.path.basename(filepath)  # e.g., 2024_09_02__21_46_16.jpg
+        match = re.search(r"(\d{4})_(\d{2})_(\d{2})__([0-2]\d)_(\d{2})_(\d{2})", filename)
+        if match:
+            dt_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)} {match.group(4)}:{match.group(5)}:{match.group(6)}"
+            return datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+    except Exception as e:
+        print("Error parsing filename timestamp:", e)
+    return None
 
 def admin_process_tar_archive(tar_record):
     tar_record.is_processing = True
@@ -173,3 +200,53 @@ def parse_filename_timestamp_with_fallback(filename, note_parts):
     except Exception as e:
         note_parts.append(f"Filename timestamp parsing failed: {e}")
         return DUMMY_DATE
+    
+def handle_directory_ingestion(directory, station, media_root):
+    count = 0
+    errors = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            try:
+                full_path = os.path.join(root, file)
+                is_image = file.lower().endswith(('.jpg', '.jpeg', '.png'))
+                is_video = file.lower().endswith('.avi')
+                if not (is_image or is_video):
+                    continue
+
+                filename_timestamp = parse_filename_timestamp(file)
+                if not filename_timestamp:
+                    raise ValueError("Invalid filename timestamp")
+
+                watermark_timestamp = extract_timestamp_from_watermark(full_path) if is_image else None
+                preview_bytes = generate_thumbnail_bytes(full_path) if is_image else None
+                timestamp_mismatch = (filename_timestamp != watermark_timestamp) if watermark_timestamp else False
+                final_timestamp = watermark_timestamp or filename_timestamp
+
+                sub_folder = "avi" if is_video else ""
+                dest_rel_path = os.path.join(
+                    "all_sky_images",
+                    station,
+                    filename_timestamp.strftime("%Y"),
+                    filename_timestamp.strftime("%m"),
+                    filename_timestamp.strftime("%d"),
+                    sub_folder,
+                    file
+                )
+                dest_full_path = os.path.join(media_root, dest_rel_path)
+                os.makedirs(os.path.dirname(dest_full_path), exist_ok=True)
+                shutil.copy2(full_path, dest_full_path)
+
+                AllSkyImage.objects.create(
+                    file=dest_rel_path.replace("\\", "/"),
+                    station=station,
+                    filename_timestamp=filename_timestamp,
+                    watermark_timestamp=watermark_timestamp or datetime(1970,1,1),
+                    timestamp_mismatch=timestamp_mismatch,
+                    note="",
+                    preview=preview_bytes,
+                    final_timestamp=final_timestamp,
+                )
+                count += 1
+            except Exception as e:
+                errors.append(f"{file}: {e}")
+    return count, errors

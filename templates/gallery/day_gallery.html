@@ -1,61 +1,80 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load tz %}
+
 {% block content %}
+
 <div class="container mt-4">
   <h3 class="mb-4">{{ date }}</h3>
 
   {% if not page_obj %}
-  <p>No images available for this day.</p>
+    <p>No images available for this day.</p>
   {% else %}
-  <div class="timeline-wrapper d-flex flex-wrap gap-3 justify-content-start">
-    {% for img in page_obj %}
-    <div class="timeline-item text-center">
-      <img src="{% url 'preview_image' img.id %}" class="img-thumbnail shadow-sm timeline-thumb"
-        style="width: 120px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#imageModal"
-        data-full-url="{{ img.file.url }}" data-caption="{{ img.final_timestamp|localtime|date:'H:i:s' }}"
-        data-index="{{ forloop.counter0 }}" data-bs-title="Captured at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
-        data-bs-toggle="tooltip">
-      <div class="small text-muted mt-1">{{ img.final_timestamp|localtime|date:"H:i" }}</div>
+    <div class="timeline-wrapper d-flex flex-wrap gap-3 justify-content-start">
+      {% for img in page_obj %}
+      <div class="timeline-item text-center">
+        <div class="position-relative d-inline-block">
+          <img src="{% url 'preview_image' img.id %}"
+               class="img-thumbnail shadow-sm timeline-thumb"
+               style="width: 120px; cursor: pointer;"
+               data-bs-toggle="modal"
+               data-bs-target="#imageModal"
+               data-full-url="{{ img.file.url }}"
+               data-caption="{{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-index="{{ forloop.counter0 }}"
+               data-type="{% if img.is_video %}video{% else %}image{% endif %}"
+               data-bs-title="Captured at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-bs-toggle="tooltip">
+          {% if img.is_video %}
+          <span class="position-absolute top-50 start-50 translate-middle text-white fs-4">
+            <i class="bi bi-play-circle-fill"
+            class="img-thumbnail shadow-sm timeline-thumb"
+               style="width: 120px; cursor: pointer;"
+               data-bs-toggle="modal"
+               data-bs-target="#imageModal"
+               data-full-url="{{ img.file.url }}"
+               data-caption="{{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-index="{{ forloop.counter0 }}"
+               data-type="{% if img.is_video %}video{% else %}image{% endif %}"
+               data-bs-title="Captured at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-bs-toggle="tooltip"></i>
+          </span>
+          {% endif %}
+        </div>
+        <div class="small text-muted mt-1">
+          {{ img.final_timestamp|localtime|date:"H:i" }}
+        </div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
   {% endif %}
+
   {% if page_obj.has_other_pages %}
   <nav aria-label="Pagination" class="mt-4">
     <ul class="pagination justify-content-center">
-
       {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-      </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
       {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">Previous</span>
-      </li>
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
       {% endif %}
 
       {% for i in page_obj.paginator.page_range %}
-      {% if page_obj.number == i %}
-      <li class="page-item active">
-        <span class="page-link">{{ i }}</span>
-      </li>
-      {% else %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-      </li>
-      {% endif %}
+        {% if page_obj.number == i %}
+          <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
       {% endfor %}
 
       {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-      </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+        </li>
       {% else %}
-      <li class="page-item disabled">
-        <span class="page-link">Next</span>
-      </li>
+        <li class="page-item disabled"><span class="page-link">Next</span></li>
       {% endif %}
-
     </ul>
   </nav>
   {% endif %}
@@ -66,11 +85,15 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+        <h5 class="modal-title" id="imageModalLabel">Preview</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-center">
-        <img id="modalImage" src="" class="img-fluid border" alt="Full-size image">
+        <img id="modalImage" src="" class="img-fluid border d-none" alt="Full-size image">
+        <video id="modalVideo" controls class="img-fluid border d-none">
+          <source id="modalVideoSource" src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
         <div id="modalCaption" class="mt-2 text-muted small"></div>
         <div class="d-flex justify-content-between mt-3">
           <button class="btn btn-outline-secondary" id="prevImage">⏮ Previous</button>
@@ -89,7 +112,24 @@
     const img = thumbnails[index];
     if (!img) return;
 
-    document.getElementById('modalImage').src = img.dataset.fullUrl;
+    const type = img.dataset.type;
+    const url = img.dataset.fullUrl;
+
+    const modalImage = document.getElementById('modalImage');
+    const modalVideo = document.getElementById('modalVideo');
+    const modalVideoSource = document.getElementById('modalVideoSource');
+
+    if (type === "video") {
+      modalImage.classList.add('d-none');
+      modalVideoSource.src = url;
+      modalVideo.load();
+      modalVideo.classList.remove('d-none');
+    } else {
+      modalVideo.classList.add('d-none');
+      modalImage.src = url;
+      modalImage.classList.remove('d-none');
+    }
+
     document.getElementById('modalCaption').textContent = "Captured at " + img.dataset.caption;
     currentIndex = index;
   }
@@ -110,7 +150,6 @@
     if (currentIndex < thumbnails.length - 1) updateModal(currentIndex + 1);
   });
 
-  // Enable tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
 </script>
@@ -124,10 +163,11 @@
   .timeline-item {
     flex: 0 0 auto;
   }
+
   .page-item.active .page-link {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  color: white;
-}
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+  }
 </style>
 {% endblock %}

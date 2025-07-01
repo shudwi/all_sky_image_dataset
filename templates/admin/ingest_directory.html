@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h2>Ingest AllSky Dataset from Directory</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" class="default" value="Start Ingestion">
+</form>
+<p><strong>Note:</strong> The directory must be accessible from the server.</p>
+{% endblock %}
