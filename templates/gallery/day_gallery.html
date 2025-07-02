@@ -1,12 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load tz %}
-
+{% block title %}{{station}}-{{ date|date:"d-m-Y" }}{% endblock %}
 {% block content %}
-
+<div class="text-end mb-3">
+  <a href="{% url 'year_view' station date.year %}" class="btn btn-outline-primary">
+    <i class="bi bi-arrow-left"></i> Back
+  </a>
+</div>
 <div class="container mt-4">
-  <h3 class="mb-4">{{ date }}</h3>
-
+  <h3 class="mb-4">{{ date|date:"d F Y" }}</h3>
+  
   {% if not page_obj %}
     <p>No images available for this day.</p>
   {% else %}
@@ -16,14 +20,16 @@
         <div class="position-relative d-inline-block">
           <img src="{% url 'preview_image' img.id %}"
                class="img-thumbnail shadow-sm timeline-thumb"
-               style="width: 120px; cursor: pointer;"
+               style="width: 250px; cursor: pointer;"
                data-bs-toggle="modal"
                data-bs-target="#imageModal"
                data-full-url="{{ img.file.url }}"
                data-caption="{{ img.final_timestamp|localtime|date:'H:i:s' }}"
                data-index="{{ forloop.counter0 }}"
                data-type="{% if img.is_video %}video{% else %}image{% endif %}"
-               data-bs-title="Captured at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-bs-title="Recorded at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-station="{{ img.station }}"
+               data-date="{{ img.final_timestamp|localtime|date:'d F Y' }}"
                data-bs-toggle="tooltip">
           {% if img.is_video %}
           <span class="position-absolute top-50 start-50 translate-middle text-white fs-4">
@@ -37,12 +43,14 @@
                data-index="{{ forloop.counter0 }}"
                data-type="{% if img.is_video %}video{% else %}image{% endif %}"
                data-bs-title="Captured at {{ img.final_timestamp|localtime|date:'H:i:s' }}"
+               data-station="{{ img.station }}"
+               data-date="{{ img.final_timestamp|localtime|date:'d F Y' }}"
                data-bs-toggle="tooltip"></i>
           </span>
           {% endif %}
         </div>
         <div class="small text-muted mt-1">
-          {{ img.final_timestamp|localtime|date:"H:i" }}
+          {{station}} {{ img.final_timestamp|date:"d-m-Y H:i:s" }}
         </div>
       </div>
       {% endfor %}
@@ -96,8 +104,8 @@
         </video>
         <div id="modalCaption" class="mt-2 text-muted small"></div>
         <div class="d-flex justify-content-between mt-3">
-          <button class="btn btn-outline-secondary" id="prevImage">⏮ Previous</button>
-          <button class="btn btn-outline-secondary" id="nextImage">Next ⏭</button>
+          <button class="btn btn-outline-secondary" id="prevImage"><i class="bi bi-skip-backward-fill"></i> Previous</button>
+          <button class="btn btn-outline-secondary" id="nextImage">Next <i class="bi bi-skip-forward-fill"></i></button>
         </div>
       </div>
     </div>
@@ -114,6 +122,8 @@
 
     const type = img.dataset.type;
     const url = img.dataset.fullUrl;
+    const station = img.dataset.station;
+    const date = img.dataset.date;
 
     const modalImage = document.getElementById('modalImage');
     const modalVideo = document.getElementById('modalVideo');
@@ -129,8 +139,8 @@
       modalImage.src = url;
       modalImage.classList.remove('d-none');
     }
-
-    document.getElementById('modalCaption').textContent = "Captured at " + img.dataset.caption;
+    document.getElementById('imageModalLabel').textContent = `${station} – ${date}`;
+    document.getElementById('modalCaption').textContent = "Recorded at " + img.dataset.caption;
     currentIndex = index;
   }
 

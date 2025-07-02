@@ -13,14 +13,14 @@
         ongoing atmospheric research efforts aimed at understanding upper atmospheric phenomena in polar environments.
       </p>
 
-      <h4 class="mt-4">🎯 Project Objectives</h4>
+      <h4 class="mt-4">Project Objectives</h4>
       <ul>
         <li>Monitoring auroral and airglow activities in the polar atmosphere</li>
         <li>Studying mesospheric and thermospheric dynamics</li>
         <li>Supporting atmospheric modelling and space weather studies</li>
       </ul>
 
-      <h4 class="mt-4">📷 Instrument Details</h4>
+      <h4 class="mt-4">Instrument Details</h4>
       <ul>
         <li><strong>Type:</strong> All Sky Camera (ASIM – All Sky Imaging System)</li>
         <li><strong>Field of View:</strong> 180° (fisheye lens)</li>
@@ -36,14 +36,17 @@
     </div>
   </div>
 
-  <h4 class="mb-3">🗓 Available Years</h4>
-  <div class="row">
-    {% for y in years %}
-      <div class="col-6 col-md-3 mb-2">
-        <a href="{% url 'year_view' y.year %}" class="btn btn-outline-primary w-100">{{ y.year }}</a>
-      </div>
-    {% endfor %}
+  <h4 class="mb-3">Year wise Dataset Available</h4>
+  {% for station, years in station_years.items %}
+  <div class="mb-4">
+    <h5 class="text-primary">{{ station }}</h5>
+      {% for year in years %}
+          <a href="{% url 'year_view' station year %}" class="btn btn-outline-primary">
+            {{ year }}
+          </a>
+      {% endfor %}
   </div>
+{% endfor %}
 </div>
 
 {% endblock %}

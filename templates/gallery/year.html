@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title %}{{station}}-{{ year }}{% endblock %}
 {% block content %}
+<div class="text-end mb-3">
+  <a href="{% url 'home' %}" class="btn btn-outline-primary">
+    <i class="bi bi-arrow-left"></i> Back
+  </a>
+</div>
 <div class="container">
   <h2 class="mb-4 text-center">All Sky Image Calendar - {{ year }}</h2>
 
@@ -26,7 +32,7 @@
                         <td class="p-1"></td>
                       {% elif day.status == 'available' %}
                         <td class="p-1">
-                          <a href="{% url 'day_gallery' year month.number day.day %}" class="btn btn-success btn-sm">
+                          <a href="{% url 'day_gallery' station year month.number day.day %}" class="btn btn-success btn-sm">
                             {{ day.day }}
                           </a>
                         </td>

@@ -7,6 +7,6 @@ urlpatterns = [
     path('gallery/async-status/<int:tar_id>/', views.async_status_view, name='async_status'),
     path('gallery/stop-ingest/<int:tar_id>/', views.stop_ingest_view, name='stop_ingest'),
     path('preview/<int:image_id>/', views.preview_image_view, name='preview_image'),
-    path('gallery/<int:year>/', views.year_view, name='year_view'),
-    path('gallery/<int:year>/<int:month>/<int:day>/', views.day_gallery, name='day_gallery'),
+    path('gallery/<str:station>/<int:year>/', views.year_view, name='year_view'),
+    path('gallery/<str:station>/<int:year>/<int:month>/<int:day>/', views.day_gallery, name='day_gallery'),
 ]

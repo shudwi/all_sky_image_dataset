@@ -15,21 +15,43 @@ from django.http import JsonResponse
 import calendar
 from django.db.models.functions import TruncDay
 from django.db.models import Count
+from collections import defaultdict
+from django.db.models.functions import ExtractYear
 
 DUMMY_DATE = datetime(1900, 1, 1, 0, 0, 0)
 
+# def home(request):
+#     years = AllSkyImage.objects.dates('final_timestamp', 'year')
+#     return render(request, 'gallery/home.html', {'years': years})
+
 def home(request):
-    years = AllSkyImage.objects.dates('final_timestamp', 'year')
-    return render(request, 'gallery/home.html', {'years': years})
+    stations = AllSkyImage.objects.values_list('station', flat=True).distinct()
+    station_years = defaultdict(list)
 
-def year_view(request, year):
-    # Get all available days in the year
+    for station in stations:
+        years = (
+            AllSkyImage.objects.filter(station=station)
+            .annotate(year=ExtractYear('final_timestamp'))
+            .order_by('year')
+            .values_list('year', flat=True)
+            .distinct()
+        )
+        station_years[station] = years
+
+    return render(request, 'gallery/home.html', {
+        'station_years': dict(station_years)
+    })
+
+def year_view(request, station, year):
+    # Get all available days for the given station and year
     all_days = AllSkyImage.objects.filter(
-        final_timestamp__year=year
+        final_timestamp__year=year,
+        station=station
     ).dates('final_timestamp', 'day')
+    
     days_with_data = set(all_days)
+    cal = calendar.Calendar(firstweekday=6)  # Week starts on Sunday
 
-    cal = calendar.Calendar(firstweekday=6)
     months = []
     for m in range(1, 13):
         month_data = {
@@ -50,6 +72,7 @@ def year_view(request, year):
 
     return render(request, 'gallery/year.html', {
         'year': year,
+        'station': station,
         'months': months,
     })
 
@@ -86,21 +109,25 @@ def month_view(request, year, month):
         'months': months,
     })
 
-def day_gallery(request, year, month, day):
-
+def day_gallery(request, station, year, month, day):
     date_selected = date(year, month, day)
     start_dt = datetime.combine(date_selected, datetime.min.time())
     end_dt = start_dt + timedelta(days=1)
-    images = AllSkyImage.objects.filter(filename_timestamp__gte=start_dt,
-    filename_timestamp__lt=end_dt).order_by('final_timestamp')
-    first_image = images.first()
 
+    images = AllSkyImage.objects.filter(
+        filename_timestamp__gte=start_dt,
+        filename_timestamp__lt=end_dt,
+        station=station
+    ).order_by('final_timestamp')
+
+    first_image = images.first()
     paginator = Paginator(images, 50)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'gallery/day_gallery.html', {
         'date': date_selected,
+        'station': station,
         'first_image': first_image,
         'page_obj': page_obj,
     })
