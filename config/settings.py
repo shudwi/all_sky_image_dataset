@@ -139,3 +139,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = ['https://data.ncpor.res.in']
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Optional, if you serve from subpath like /asi
+    CSRF_COOKIE_PATH = '/asi/'
+    SESSION_COOKIE_PATH = '/asi/'

@@ -30,8 +30,14 @@ def upload_to_based_on_timestamp(instance, filename):
 
     return f'all_sky_images/{station}/{dt.year:04d}/{dt.month:02d}/{dt.day:02d}/{filename}'
 class AllSkyImage(models.Model):
+    class StationChoices(models.TextChoices):
+        MAITRI = 'Maitri', 'Maitri'
+        BHARATI = 'Bharati', 'Bharati'
+        HIMADRI = 'Himadri', 'Himadri'
+        HIMANSH = 'Himansh', 'Himansh'
+
     file = models.FileField(upload_to=upload_to_based_on_timestamp)
-    station = models.CharField(max_length=100, default='Bharati')
+    station = models.CharField(max_length=100, choices=StationChoices.choices, default=StationChoices.BHARATI)
     filename_timestamp = models.DateTimeField(default=DUMMY_DATE)
     watermark_timestamp = models.DateTimeField(default=DUMMY_DATE)
     timestamp_mismatch = models.BooleanField(default=False)
