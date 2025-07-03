@@ -123,7 +123,7 @@ USE_TZ = False #True
 if DEBUG:
     FORCE_SCRIPT_NAME = ''
 else:
-    FORCE_SCRIPT_NAME = '/asi'
+    FORCE_SCRIPT_NAME = '/asc'
 STATIC_URL = FORCE_SCRIPT_NAME + '/static/'
 
 #STATIC_URL = 'static/'
@@ -143,6 +143,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS = ['https://data.ncpor.res.in']
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    # Optional, if you serve from subpath like /asi
-    CSRF_COOKIE_PATH = '/asi/'
-    SESSION_COOKIE_PATH = '/asi/'
+    # Optional, if you serve from subpath like /asc
+    CSRF_COOKIE_PATH = '/asc/'
+    SESSION_COOKIE_PATH = '/asc/'
