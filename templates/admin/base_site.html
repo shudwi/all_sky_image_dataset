@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}All Sky Dataset Admin{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'bootstrap-icons/bootstrap-icons.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+      <img src="{% static 'img/logo.png' %}" style="height: 24px; vertical-align: middle;" alt="Logo">
+      All Sky Dataset Admin
+    </a>
+  </h1>
+{% endblock %}

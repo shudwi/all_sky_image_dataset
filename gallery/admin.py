@@ -7,11 +7,9 @@ from .views import admin_process_tar_file
 from .management.commands.scan_tar_files import Command as ScanCommand
 from .utils import handle_directory_ingestion
 from django.template.response import TemplateResponse
-from django import forms
 from django.conf import settings
-from django.core.files.base import ContentFile
-import zipfile
 import os
+from .forms import BulkUploadForm, DirectoryIngestionForm
 @admin.register(TarFileRecord)
 class TarFileRecordAdmin(admin.ModelAdmin):
     list_display = ('file_name', 'processed', 'last_processed', 'process_button','processing_controls','status_label')
@@ -62,11 +60,6 @@ class TarFileRecordAdmin(admin.ModelAdmin):
             return "✅ Done"
         else:
             return "⏸ Not Started"
-
-class DirectoryIngestionForm(forms.Form):
-    station = forms.CharField(max_length=100, required=True)
-    directory = forms.CharField(widget=forms.TextInput(attrs={'size': 100}), required=True)
-
 @admin.register(AllSkyImage)
 class AllSkyImageAdmin(admin.ModelAdmin):
     change_list_template = "admin/gallery/allskyimage/change_list.html"
@@ -107,7 +100,6 @@ class AllSkyImageAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/ingest_directory.html", context)
 
     def bulk_upload_view(self, request):
-        from .forms import BulkUploadForm
         form = BulkUploadForm(request.POST or None, request.FILES or None)
 
         if request.method == "POST" and form.is_valid():

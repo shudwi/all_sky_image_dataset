@@ -90,15 +90,17 @@
 
 <!-- Modal -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="imageModalLabel">Preview</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-center">
-        <img id="modalImage" src="" class="img-fluid border d-none" alt="Full-size image">
-        <video id="modalVideo" controls class="img-fluid border d-none">
+        <img id="modalImage" src="" class="img-fluid border d-none" alt="Full-size image"
+             oncontextmenu="return false;" title="Click to view fullscreen">
+        <video id="modalVideo" controls class="img-fluid border d-none"
+               oncontextmenu="return false;" title="Click to view fullscreen">
           <source id="modalVideoSource" src="" type="video/mp4">
           Your browser does not support the video tag.
         </video>
@@ -139,6 +141,7 @@
       modalImage.src = url;
       modalImage.classList.remove('d-none');
     }
+
     document.getElementById('imageModalLabel').textContent = `${station} – ${date}`;
     document.getElementById('modalCaption').textContent = "Recorded at " + img.dataset.caption;
     currentIndex = index;
@@ -160,8 +163,38 @@
     if (currentIndex < thumbnails.length - 1) updateModal(currentIndex + 1);
   });
 
+  // Tooltip
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+  // Fullscreen on click
+  function openFullscreen(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const img = document.getElementById('modalImage');
+    const vid = document.getElementById('modalVideo');
+    img.addEventListener('click', () => openFullscreen(img));
+    vid.addEventListener('click', () => openFullscreen(vid));
+  });
+
+  // Disable developer tools
+  document.addEventListener('keydown', function (e) {
+    if (
+      e.key === "F12" ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) ||
+      (e.ctrlKey && e.key === 'U')
+    ) {
+      e.preventDefault();
+    }
+  });
 </script>
 
 <style>
@@ -178,6 +211,10 @@
     background-color: #0d6efd;
     border-color: #0d6efd;
     color: white;
+  }
+
+  #modalImage, #modalVideo {
+    cursor: zoom-in;
   }
 </style>
 {% endblock %}

@@ -1,8 +1,18 @@
 {% extends "admin/base_site.html" %}
+
 {% block content %}
-  <h2>Bulk Upload AllSky Files</h2>
-  <form method="post" enctype="multipart/form-data">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" class="default" value="Upload">
-  </form>
+<div class="container d-flex justify-content-center mt-5">
+  <div class="card shadow-sm w-50">
+    <div class="card-body">
+      <!-- <h4 class="card-title text-center mb-4">Upload ZIP for Bulk Ingestion</h4> -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -3,30 +3,41 @@
 {% block content %}
 
 <div class="container">
-  <h2 class="mb-4">Welcome to All Sky Image Dataset</h2>
+  <h2 class="mb-4">All-Sky Imaging Observations at Maitri and Bharati Stations, Antarctica</h2>
 
   <div class="row mb-4">
     <div class="col-md-6">
-      <p>
-        This gallery presents sky images captured continuously at the <strong>Maitri station</strong> and <strong>Bharati station</strong> in Antarctica, 
-        operated by the <strong>National Centre for Polar and Ocean Research (NCPOR)</strong>. These images are part of 
-        ongoing atmospheric research efforts aimed at understanding upper atmospheric phenomena in polar environments.
-      </p>
+      <p>Continuous All-Sky Imaging (ASI) observations are being conducted at the Maitri and Bharati research stations 
+        in Antarctica, operated by the National Centre for Polar and Ocean Research (NCPOR). These observations form 
+        a critical component of ongoing atmospheric and space weather research programs, with a specific focus on 
+        high-latitude geophysical processes, particularly auroral dynamics and magnetosphere–ionosphere coupling.</p>
 
-      <h4 class="mt-4">Project Objectives</h4>
+      <p>The collected datasets facilitate detailed investigations into the onset and evolution of auroral substorms, 
+        and provide key insights into the physical mechanisms governing the transport of energy and charged particles 
+        from the magnetosphere into the polar ionosphere and thermosphere. These interactions play a significant 
+        role in space weather variability and have direct implications for ionospheric conductivity, particle 
+        precipitation, and electromagnetic energy dissipation at high latitudes.</p>
+
+      <h4 class="mt-4">Scientific Objectives</h4>
       <ul>
-        <li>Monitoring auroral and airglow activities in the polar atmosphere</li>
-        <li>Studying mesospheric and thermospheric dynamics</li>
-        <li>Supporting atmospheric modelling and space weather studies</li>
+        <li><p><b>Monitoring Auroral Activity</b> 
+        To characterize the spatial and temporal variability of auroral activity in response to solar 
+        wind–magnetosphere interactions, and to quantify their impact on ionospheric electrodynamics 
+        and upper atmospheric energy balance.</p></li>
+        <li><p><b>Substorm Onset and Magnetospheric Coupling</b>
+        To investigate the trigger mechanisms and morphological features of auroral 
+        substorm onset, and to examine the associated magnetospheric energy transfer 
+        processes, including field-aligned currents, particle precipitation, and auroral 
+        arc dynamics in the polar ionosphere.</p></li>
       </ul>
 
       <h4 class="mt-4">Instrument Details</h4>
       <ul>
-        <li><strong>Type:</strong> All Sky Camera (ASIM – All Sky Imaging System)</li>
+        <li><strong>Type:</strong> All Sky Imaging System</li>
         <li><strong>Field of View:</strong> 180° (fisheye lens)</li>
         <li><strong>Resolution:</strong> Up to 4K (varies by deployment)</li>
-        <li><strong>Image Interval:</strong> Every 1–5 minutes (configurable)</li>
-        <li><strong>Deployed at:</strong> Maitri Station, Antarctica</li>
+        <li><strong>Image Interval:</strong> Every 1 minute (configurable)</li>
+        <li><strong>Deployed at:</strong> Maitri and Bharati Station, Antarctica</li>
       </ul>
     </div>
 
@@ -46,7 +57,20 @@
           </a>
       {% endfor %}
   </div>
-{% endfor %}
+  {% endfor %}
+  <hr>
+  <div class="row">
+    <div class="col">
+      <p><strong>Please note:</strong> 
+        The datasets available on the portal are sample datasets intended for reference purposes only.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <p>For further information, please contact us at: 
+        <a href="mailto:npdc@ncpor.res.in">npdc@ncpor.res.in</a>.</p>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
